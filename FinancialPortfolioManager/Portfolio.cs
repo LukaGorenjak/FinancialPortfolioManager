@@ -11,6 +11,14 @@ namespace FinancialPortfolioManager
         private readonly List<Investment> investments = new List<Investment>();
         private readonly List<Transaction> transactions = new();
 
+        public delegate void PortfolioChangedHandler(object sender, PortfolioChangedEventArgs e);
+        public event PortfolioChangedHandler PortfolioChanged;
+
+        protected virtual void OnPortfolioChanged(string action, object affectedObject)
+        {
+            PortfolioChanged?.Invoke(this, new PortfolioChangedEventArgs(action, affectedObject));
+        }
+
         public static string currency = "EUR";
 
         public decimal CashBalance { get; private set; } = 1000m;
@@ -24,6 +32,7 @@ namespace FinancialPortfolioManager
         {
             if (amount <= 0) return;
             CashBalance += amount;
+            OnPortfolioChanged("Deposit", amount);
         }
 
         public bool Withdraw(decimal amount)
@@ -32,6 +41,7 @@ namespace FinancialPortfolioManager
                 return false;
 
             CashBalance -= amount;
+            OnPortfolioChanged("Withdraw", amount);
             return true;
         }
 
@@ -58,6 +68,7 @@ namespace FinancialPortfolioManager
             else
             {
                 investments.Add(investment);
+                OnPortfolioChanged("AddInvestment", investment);
             }
 
         }
@@ -79,7 +90,6 @@ namespace FinancialPortfolioManager
 
             //return totalSum;
 
-            // Uporaba lastne knjižnice in vmesnika IValuable.
             return CashBalance + FinancialPortfolioManager.Library.PortfolioLibrary.CalculateTotalValue(investments);
         }
 
@@ -114,6 +124,7 @@ namespace FinancialPortfolioManager
         public void RemoveInvestment(Investment investment)
         {
             investments.Remove(investment);
+            OnPortfolioChanged("RemoveInvestment", investment);
         }
 
         public Investment this[int index]
@@ -135,6 +146,7 @@ namespace FinancialPortfolioManager
         {
             transaction.IsBuy = isBuy;
             transactions.Add(transaction);
+            OnPortfolioChanged("AddTransaction", transaction);
         }
 
         public static Portfolio operator +(Portfolio a, Portfolio b)

@@ -1,4 +1,6 @@
 using System.Windows.Forms;
+using System;
+using System.Collections.Generic;
 
 namespace FinancialPortfolioManager
 {
@@ -6,10 +8,38 @@ namespace FinancialPortfolioManager
     {
         public Portfolio portfolio1 = new Portfolio();
 
+        private readonly Dictionary<string, StockMetadata> stockMetadata =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        private readonly Dictionary<string, CryptoMetadata> cryptoMetadata =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        private class StockMetadata
+        {
+            public string Exchange { get; set; } = string.Empty;
+            public string Sector { get; set; } = string.Empty;
+            public bool IsEtf { get; set; }
+            public decimal DividendYield { get; set; }
+        }
+
+        private class CryptoMetadata
+        {
+            public string Blockchain { get; set; } = string.Empty;
+            public bool IsStablecoin { get; set; }
+            public decimal StakingYield { get; set; }
+        }
+
         public Form1()
         {
             InitializeComponent();
             timer1.Start();
+
+            portfolio1.PortfolioChanged += Portfolio1_PortfolioChanged;
+        }
+        
+        private void Portfolio1_PortfolioChanged(object sender, PortfolioChangedEventArgs e)
+        {
+            MessageBox.Show($"Portfolio action: {e.Action}\nObject: {e.AffectedObject}", "Portfolio Changed");
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -72,23 +102,45 @@ namespace FinancialPortfolioManager
             }
 
             Investment investment;
-            if (comboBox1.SelectedItem.ToString() == "Stock")
+            string typeString = comboBox1.SelectedItem.ToString();
+            string ticker = tickerTextBox.Text.Trim().ToUpper();
+
+            if (typeString == "Stock")
             {
-                investment = new StockInvestment(
-                    tickerTextBox.Text.Trim().ToUpper(),
+                var stock = new StockInvestment(
+                    ticker,
                     nameTextBox.Text,
                     amount,
                     price
                 );
+
+                if (stockMetadata.TryGetValue(ticker, out var meta))
+                {
+                    stock.Exchange = meta.Exchange;
+                    stock.Sector = meta.Sector;
+                    stock.IsEtf = meta.IsEtf;
+                    stock.DividendYield = meta.DividendYield;
+                }
+
+                investment = stock;
             }
             else
             {
-                investment = new CryptoInvestment(
-                    tickerTextBox.Text.Trim().ToUpper(),
+                var crypto = new CryptoInvestment(
+                    ticker,
                     nameTextBox.Text,
                     amount,
                     price
                 );
+
+                if (cryptoMetadata.TryGetValue(ticker, out var meta))
+                {
+                    crypto.Blockchain = meta.Blockchain;
+                    crypto.IsStablecoin = meta.IsStablecoin;
+                    crypto.StakingYield = meta.StakingYield;
+                }
+
+                investment = crypto;
             }
 
             var tx = new Transaction(
@@ -134,7 +186,6 @@ namespace FinancialPortfolioManager
             var investments = portfolio1.GetInvestments();
             for (int i = 0; i < investments.Count; i++)
             {
-                // uporaba indekserja po indeksu
                 var inv = portfolio1[i];
                 investmentsListBox.Items.Add(
                     $"{inv.Ticker} | {inv.Amount} | Avg {inv.BuyPrice:N2} {Portfolio.currency}"
@@ -166,7 +217,6 @@ namespace FinancialPortfolioManager
             if (!portfolio1.Withdraw(numericUpDownAmount1.Value))
                 MessageBox.Show("Not enough cash!");
 
-            //portfolio1.Withdraw(numericUpDownAmount1.Value);
             UpdateInvestmentsList();
         }
 
@@ -197,6 +247,72 @@ namespace FinancialPortfolioManager
                 groupBox1.ForeColor = Color.Black;
                 groupBox2.ForeColor = Color.Black;
                 groupBox3.ForeColor = Color.Black;
+            }
+        }
+
+        private void tickerTextBox_Leave(object sender, EventArgs e)
+        {
+            // Metadata is now edited via the Details dialog, so this handler is left empty.
+        }
+
+        private void detailsButton_Click(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedItem == null)
+            {
+                MessageBox.Show("Please select an investment type first.");
+                return;
+            }
+
+            string ticker = tickerTextBox.Text.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(ticker))
+            {
+                MessageBox.Show("Please enter a ticker first.");
+                return;
+            }
+
+            string typeString = comboBox1.SelectedItem.ToString();
+
+            if (typeString == "Stock")
+            {
+                stockMetadata.TryGetValue(ticker, out var existing);
+
+                using (var dlg = new StockDetailsForm(
+                           existing?.Exchange ?? string.Empty,
+                           existing?.Sector ?? string.Empty,
+                           existing?.IsEtf ?? false,
+                           existing != null ? existing.DividendYield * 100m : 0m))
+                {
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        stockMetadata[ticker] = new StockMetadata
+                        {
+                            Exchange = dlg.Exchange,
+                            Sector = dlg.Sector,
+                            IsEtf = dlg.IsEtf,
+                            DividendYield = dlg.DividendYieldPercent / 100m
+                        };
+                    }
+                }
+            }
+            else if (typeString == "Crypto")
+            {
+                cryptoMetadata.TryGetValue(ticker, out var existing);
+
+                using (var dlg = new CryptoDetailsForm(
+                           existing?.Blockchain ?? string.Empty,
+                           existing?.IsStablecoin ?? false,
+                           existing != null ? existing.StakingYield * 100m : 0m))
+                {
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        cryptoMetadata[ticker] = new CryptoMetadata
+                        {
+                            Blockchain = dlg.Blockchain,
+                            IsStablecoin = dlg.IsStablecoin,
+                            StakingYield = dlg.StakingPercent / 100m
+                        };
+                    }
+                }
             }
         }
 
@@ -231,7 +347,6 @@ namespace FinancialPortfolioManager
             string name = nameTextBox.Text.Trim();
             string typeString = comboBox1.SelectedItem.ToString();
 
-            // Find the investment to sell – uporaba indekserja po tickerju
             var investment = portfolio1[ticker];
 
             if (investment == null || investment.Name != name || investment.Type.ToString() != typeString)
@@ -240,7 +355,6 @@ namespace FinancialPortfolioManager
                 return;
             }
 
-            // Use a small tolerance for decimal comparison
             const decimal tolerance = 0.00001m;
 
             if (amountToSell <= 0 || amountToSell - investment.Amount > tolerance)
@@ -251,7 +365,7 @@ namespace FinancialPortfolioManager
 
             if (Math.Abs(investment.Amount - amountToSell) < tolerance)
             {
-                amountToSell = investment.Amount; 
+                amountToSell = investment.Amount;
                 portfolio1.RemoveInvestment(investment);
             }
             else
@@ -270,6 +384,11 @@ namespace FinancialPortfolioManager
 
             UpdateInvestmentsList();
             UpdateTransactionsList();
+        }
+
+        private void transactionsListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

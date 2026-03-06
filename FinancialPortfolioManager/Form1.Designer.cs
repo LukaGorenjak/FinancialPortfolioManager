@@ -47,6 +47,7 @@ namespace FinancialPortfolioManager
             label10 = new Label();
             amountTextBox = new TextBox();
             numericUpDownAmount1 = new NumericUpDown();
+            detailsButton = new Button();
             withdrawButton = new Button();
             label8 = new Label();
             nameTextBox = new TextBox();
@@ -88,7 +89,7 @@ namespace FinancialPortfolioManager
             // portfolioValueLabel
             // 
             portfolioValueLabel.AutoSize = true;
-            portfolioValueLabel.Location = new Point(258, 100);
+            portfolioValueLabel.Location = new Point(108, 105);
             portfolioValueLabel.Name = "portfolioValueLabel";
             portfolioValueLabel.Size = new Size(17, 20);
             portfolioValueLabel.TabIndex = 9;
@@ -97,7 +98,7 @@ namespace FinancialPortfolioManager
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(234, 71);
+            label5.Location = new Point(98, 75);
             label5.Name = "label5";
             label5.Size = new Size(106, 20);
             label5.TabIndex = 8;
@@ -106,7 +107,7 @@ namespace FinancialPortfolioManager
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(374, 186);
+            label3.Location = new Point(238, 190);
             label3.Name = "label3";
             label3.Size = new Size(17, 20);
             label3.TabIndex = 7;
@@ -115,7 +116,7 @@ namespace FinancialPortfolioManager
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(374, 119);
+            label2.Location = new Point(238, 123);
             label2.Name = "label2";
             label2.Size = new Size(17, 20);
             label2.TabIndex = 6;
@@ -124,7 +125,7 @@ namespace FinancialPortfolioManager
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(374, 52);
+            label1.Location = new Point(238, 56);
             label1.Name = "label1";
             label1.Size = new Size(17, 20);
             label1.TabIndex = 5;
@@ -133,7 +134,7 @@ namespace FinancialPortfolioManager
             // MoneyDisplayLabel
             // 
             MoneyDisplayLabel.AutoSize = true;
-            MoneyDisplayLabel.Location = new Point(374, 155);
+            MoneyDisplayLabel.Location = new Point(238, 159);
             MoneyDisplayLabel.Name = "MoneyDisplayLabel";
             MoneyDisplayLabel.Size = new Size(40, 20);
             MoneyDisplayLabel.TabIndex = 4;
@@ -142,7 +143,7 @@ namespace FinancialPortfolioManager
             // CryptoDisplayLabel
             // 
             CryptoDisplayLabel.AutoSize = true;
-            CryptoDisplayLabel.Location = new Point(374, 88);
+            CryptoDisplayLabel.Location = new Point(238, 92);
             CryptoDisplayLabel.Name = "CryptoDisplayLabel";
             CryptoDisplayLabel.Size = new Size(53, 20);
             CryptoDisplayLabel.TabIndex = 3;
@@ -151,7 +152,7 @@ namespace FinancialPortfolioManager
             // StockDisplayLabel
             // 
             StockDisplayLabel.AutoSize = true;
-            StockDisplayLabel.Location = new Point(374, 23);
+            StockDisplayLabel.Location = new Point(238, 27);
             StockDisplayLabel.Name = "StockDisplayLabel";
             StockDisplayLabel.Size = new Size(51, 20);
             StockDisplayLabel.TabIndex = 2;
@@ -191,6 +192,7 @@ namespace FinancialPortfolioManager
             groupBox3.Controls.Add(label10);
             groupBox3.Controls.Add(amountTextBox);
             groupBox3.Controls.Add(numericUpDownAmount1);
+            groupBox3.Controls.Add(detailsButton);
             groupBox3.Controls.Add(withdrawButton);
             groupBox3.Controls.Add(label8);
             groupBox3.Controls.Add(nameTextBox);
@@ -211,7 +213,7 @@ namespace FinancialPortfolioManager
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(250, 245);
+            label10.Location = new Point(250, 210);
             label10.Name = "label10";
             label10.Size = new Size(62, 20);
             label10.TabIndex = 14;
@@ -219,7 +221,7 @@ namespace FinancialPortfolioManager
             // 
             // amountTextBox
             // 
-            amountTextBox.Location = new Point(318, 242);
+            amountTextBox.Location = new Point(318, 207);
             amountTextBox.Name = "amountTextBox";
             amountTextBox.Size = new Size(54, 27);
             amountTextBox.TabIndex = 13;
@@ -231,6 +233,16 @@ namespace FinancialPortfolioManager
             numericUpDownAmount1.Name = "numericUpDownAmount1";
             numericUpDownAmount1.Size = new Size(150, 27);
             numericUpDownAmount1.TabIndex = 12;
+            // 
+            // detailsButton
+            // 
+            detailsButton.Location = new Point(42, 240);
+            detailsButton.Name = "detailsButton";
+            detailsButton.Size = new Size(330, 27);
+            detailsButton.TabIndex = 23;
+            detailsButton.Text = "Details...";
+            detailsButton.UseVisualStyleBackColor = true;
+            detailsButton.Click += detailsButton_Click;
             // 
             // withdrawButton
             // 
@@ -245,7 +257,7 @@ namespace FinancialPortfolioManager
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(175, 212);
+            label8.Location = new Point(175, 177);
             label8.Name = "label8";
             label8.Size = new Size(49, 20);
             label8.TabIndex = 11;
@@ -254,7 +266,7 @@ namespace FinancialPortfolioManager
             // 
             // nameTextBox
             // 
-            nameTextBox.Location = new Point(226, 209);
+            nameTextBox.Location = new Point(226, 174);
             nameTextBox.Name = "nameTextBox";
             nameTextBox.Size = new Size(86, 27);
             nameTextBox.TabIndex = 10;
@@ -263,7 +275,7 @@ namespace FinancialPortfolioManager
             // 
             comboBox1.FormattingEnabled = true;
             comboBox1.Items.AddRange(new object[] { "Stock", "Crypto" });
-            comboBox1.Location = new Point(318, 208);
+            comboBox1.Location = new Point(318, 173);
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(54, 28);
             comboBox1.TabIndex = 9;
@@ -281,7 +293,7 @@ namespace FinancialPortfolioManager
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(49, 242);
+            label7.Location = new Point(49, 207);
             label7.Name = "label7";
             label7.Size = new Size(41, 20);
             label7.TabIndex = 8;
@@ -290,7 +302,7 @@ namespace FinancialPortfolioManager
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(42, 212);
+            label6.Location = new Point(42, 177);
             label6.Name = "label6";
             label6.Size = new Size(48, 20);
             label6.TabIndex = 7;
@@ -298,14 +310,15 @@ namespace FinancialPortfolioManager
             // 
             // tickerTextBox
             // 
-            tickerTextBox.Location = new Point(96, 209);
+            tickerTextBox.Location = new Point(96, 174);
             tickerTextBox.Name = "tickerTextBox";
             tickerTextBox.Size = new Size(73, 27);
             tickerTextBox.TabIndex = 6;
+            tickerTextBox.Leave += tickerTextBox_Leave;
             // 
             // button2
             // 
-            button2.Location = new Point(226, 174);
+            button2.Location = new Point(226, 139);
             button2.Name = "button2";
             button2.Size = new Size(146, 29);
             button2.TabIndex = 5;
@@ -315,7 +328,7 @@ namespace FinancialPortfolioManager
             // 
             // button1
             // 
-            button1.Location = new Point(42, 174);
+            button1.Location = new Point(42, 139);
             button1.Name = "button1";
             button1.Size = new Size(159, 29);
             button1.TabIndex = 2;
@@ -325,7 +338,7 @@ namespace FinancialPortfolioManager
             // 
             // priceTextBox
             // 
-            priceTextBox.Location = new Point(96, 242);
+            priceTextBox.Location = new Point(96, 207);
             priceTextBox.Name = "priceTextBox";
             priceTextBox.Size = new Size(148, 27);
             priceTextBox.TabIndex = 0;
@@ -362,6 +375,7 @@ namespace FinancialPortfolioManager
             transactionsListBox.Name = "transactionsListBox";
             transactionsListBox.Size = new Size(421, 184);
             transactionsListBox.TabIndex = 6;
+            transactionsListBox.SelectedIndexChanged += transactionsListBox_SelectedIndexChanged;
             // 
             // label9
             // 
@@ -440,5 +454,6 @@ namespace FinancialPortfolioManager
         private Label label9;
         private Label label10;
         private TextBox amountTextBox;
+        private Button detailsButton;
     }
 }

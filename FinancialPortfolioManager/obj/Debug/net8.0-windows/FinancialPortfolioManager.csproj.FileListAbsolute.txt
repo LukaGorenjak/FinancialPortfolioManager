@@ -14,3 +14,4 @@ C:\Users\goren\source\repos\FinancialPortfolioManager\FinancialPortfolioManager\
 C:\Users\goren\source\repos\FinancialPortfolioManager\FinancialPortfolioManager\obj\Debug\net8.0-windows\FinancialPortfolioManager.pdb
 C:\Users\goren\source\repos\FinancialPortfolioManager\FinancialPortfolioManager\obj\Debug\net8.0-windows\FinancialPortfolioManager.genruntimeconfig.cache
 C:\Users\goren\source\repos\FinancialPortfolioManager\FinancialPortfolioManager\obj\Debug\net8.0-windows\ref\FinancialPortfolioManager.dll
+C:\Users\goren\source\repos\FinancialPortfolioManager\FinancialPortfolioManager\obj\Debug\net8.0-windows\FinancialPortfolioManager.sourcelink.json

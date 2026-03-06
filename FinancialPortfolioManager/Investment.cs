@@ -57,6 +57,8 @@ namespace FinancialPortfolioManager
 
         public abstract decimal GetValue();
 
+        public abstract decimal GetRiskScore();
+
         public string Summary
         {
             get
@@ -68,6 +70,11 @@ namespace FinancialPortfolioManager
         public virtual decimal GetProfitLoss()
         {
             return (CurrentPrice - BuyPrice) * Amount;
+        }
+
+        public virtual string GetDetails()
+        {
+            return Summary;
         }
 
         public static Investment operator +(Investment a, Investment b)
@@ -105,7 +112,7 @@ namespace FinancialPortfolioManager
 
         ~Investment()
         {
-            System.Diagnostics.Debug.WriteLine($"[Destruktor] Investment {Ticker} je bil finaliziran.");
+            System.Diagnostics.Debug.WriteLine($"Investment {ticker} has been finalized.");
         }
     }
 }
