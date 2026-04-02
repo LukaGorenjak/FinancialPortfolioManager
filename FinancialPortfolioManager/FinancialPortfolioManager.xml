@@ -1,0 +1,643 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FinancialPortfolioManager</name>
+    </assembly>
+    <members>
+        <member name="T:FinancialPortfolioManager.CryptoInvestment">
+            <summary>
+            Predstavlja kriptovalutno naložbo. Implementira <see cref="T:FinancialPortfolioManager.IStakeable"/>.
+            </summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.CryptoInvestment.Type">
+            <summary>Vrsta naložbe — vedno <see cref="F:FinancialPortfolioManager.InvestmentType.Crypto"/>.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.CryptoInvestment.Blockchain">
+            <summary>Ime verige blokov, na kateri temelji kriptovaluta (npr. "Ethereum", "Bitcoin").</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.CryptoInvestment.IsStablecoin">
+            <summary>Označuje, ali je kriptovaluta stabilna (stablecoin).</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.CryptoInvestment.StakingYield">
+            <summary>Letni donos stakanja kot decimalni delež (npr. 0,06 za 6 %).</summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.CryptoInvestment.#ctor(System.String,System.String,System.Decimal,System.Decimal)">
+            <summary>
+            Ustvari novo kriptovalutno naložbo.
+            </summary>
+            <param name="ticker">Simbol kriptovalute (npr. "BTC", "ETH").</param>
+            <param name="name">Polno ime kriptovalute.</param>
+            <param name="amount">Količina enot v lasti.</param>
+            <param name="buyPrice">Nakupna cena na enoto.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.CryptoInvestment.GetValue">
+            <summary>
+            Vrne trenutno tržno vrednost kriptovalutne naložbe (trenutna cena × količina).
+            </summary>
+            <returns>Tržna vrednost kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.CryptoInvestment.GetAnnualStakingRewards">
+            <summary>
+            Izračuna letne nagrade za stakanje na podlagi trenutne vrednosti naložbe.
+            </summary>
+            <returns>Letne nagrade za stakanje kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.CryptoInvestment.GetRiskScore">
+            <summary>
+            Vrne oceno tveganja: 0,2 za stablecoins, 0,8 za ostale kriptovalute.
+            </summary>
+            <returns>Ocena tveganja kot <see cref="T:System.Decimal"/> med 0 in 1.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.CryptoInvestment.GetDetails">
+            <summary>
+            Vrne podrobnosti kriptovalutne naložbe: simbol, ime, veriga blokov, donos stakanja in ali je stablecoin.
+            </summary>
+            <returns>Niz s podrobnostmi naložbe.</returns>
+        </member>
+        <member name="T:FinancialPortfolioManager.Form1">
+            <summary>
+            Glavno okno aplikacije. Prikazuje portfelj, omogoča nakup/prodajo naložb,
+            polog/dvig gotovine in upravljanje metapodatkov naložb.
+            </summary>
+        </member>
+        <member name="F:FinancialPortfolioManager.Form1.portfolio1">
+            <summary>Glavni portfelj uporabnika.</summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.#ctor">
+            <summary>
+            Inicializira glavno okno, zažene časovnik in se naroči na dogodek <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.Portfolio1_PortfolioChanged(System.Object,FinancialPortfolioManager.PortfolioChangedEventArgs)">
+            <summary>
+            Odzivnik na dogodek <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            Prikaže sporočilno okno z opisom dejanja in prizadetim objektom.
+            </summary>
+            <param name="sender">Vir dogodka (portfelj).</param>
+            <param name="e">Podatki o spremembi portfelja.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.Form1_Load(System.Object,System.EventArgs)">
+            <summary>
+            Odzivnik na nalaganje obrazca. Rezervirano za inicializacijo.
+            </summary>
+            <param name="sender">Vir dogodka.</param>
+            <param name="e">Podatki o dogodku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.StockDisplayLabel_Click(System.Object,System.EventArgs)">
+            <summary>
+            Odzivnik na klik oznake za prikaz delnic. Rezervirano.
+            </summary>
+            <param name="sender">Vir dogodka.</param>
+            <param name="e">Podatki o dogodku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.button5_Click(System.Object,System.EventArgs)">
+            <summary>
+            Preklopi valuto portfelja med EUR in USD in posodobi prikaz vrednosti.
+            Sproži <see cref="M:FinancialPortfolioManager.Portfolio.ChangeCurrency"/>.
+            </summary>
+            <param name="sender">Vir dogodka (gumb).</param>
+            <param name="e">Podatki o kliku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.button1_Click(System.Object,System.EventArgs)">
+            <summary>
+            Obdela nakup naložbe. Preveri vhode, dvigne gotovino, ustvari naložbo in transakcijo ter posodobi prikaz.
+            Sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/> prek <see cref="M:FinancialPortfolioManager.Portfolio.AddInvestment(FinancialPortfolioManager.Investment)"/> in <see cref="M:FinancialPortfolioManager.Portfolio.AddTransaction(FinancialPortfolioManager.Transaction,System.Boolean)"/>.
+            </summary>
+            <param name="sender">Vir dogodka (gumb Kupi).</param>
+            <param name="e">Podatki o kliku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.timer1_Tick(System.Object,System.EventArgs)">
+            <summary>
+            Odzivnik na tick časovnika. Posodobi prikaz vrednosti portfelja in porazdelitev naložb.
+            </summary>
+            <param name="sender">Vir dogodka (časovnik).</param>
+            <param name="e">Podatki o dogodku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.label8_Click(System.Object,System.EventArgs)">
+            <summary>
+            Odzivnik na klik oznake. Rezervirano.
+            </summary>
+            <param name="sender">Vir dogodka.</param>
+            <param name="e">Podatki o dogodku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.UpdateInvestmentsList">
+            <summary>
+            Osveži seznam naložb v <c>investmentsListBox</c>: prikaže stanje gotovine in vse naložbe.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.UpdateTransactionsList">
+            <summary>
+            Osveži seznam transakcij v <c>transactionsListBox</c> z vsemi nakupi in prodajami.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.depositButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Polog gotovine v portfelj na podlagi vrednosti v <c>numericUpDownAmount1</c>.
+            Sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/> prek <see cref="M:FinancialPortfolioManager.Portfolio.Deposit(System.Decimal)"/>.
+            </summary>
+            <param name="sender">Vir dogodka (gumb Polog).</param>
+            <param name="e">Podatki o kliku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.withdrawButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Dvig gotovine iz portfelja na podlagi vrednosti v <c>numericUpDownAmount1</c>.
+            Sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/> prek <see cref="M:FinancialPortfolioManager.Portfolio.Withdraw(System.Decimal)"/>.
+            Prikaže opozorilo, če sredstev ni dovolj.
+            </summary>
+            <param name="sender">Vir dogodka (gumb Dvig).</param>
+            <param name="e">Podatki o kliku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.UpdateAllocationDisplay">
+            <summary>
+            Posodobi oznake za porazdelitev portfelja (delnice %, kripto %, gotovina %).
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.button6_Click(System.Object,System.EventArgs)">
+            <summary>
+            Preklopi med temnim in svetlim načinom prikaza.
+            V temnem načinu nastavi ozadje na črno in besedilo na belo; v svetlem obnovi sistemske barve.
+            </summary>
+            <param name="sender">Vir dogodka (gumb Dark Mode).</param>
+            <param name="e">Podatki o kliku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.tickerTextBox_Leave(System.Object,System.EventArgs)">
+            <summary>
+            Odzivnik na odhod iz polja za simbol. Metapodatki se urejajo prek dialoga Details.
+            </summary>
+            <param name="sender">Vir dogodka.</param>
+            <param name="e">Podatki o dogodku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.detailsButton_Click(System.Object,System.EventArgs)">
+            <summary>
+            Odpre dialog za urejanje metapodatkov delnice (<see cref="T:FinancialPortfolioManager.StockDetailsForm"/>) ali kriptovalute (<see cref="T:FinancialPortfolioManager.CryptoDetailsForm"/>)
+            glede na izbrani tip naložbe in vneseni simbol.
+            </summary>
+            <param name="sender">Vir dogodka (gumb Details).</param>
+            <param name="e">Podatki o kliku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.button2_Click(System.Object,System.EventArgs)">
+            <summary>
+            Obdela prodajo naložbe. Preveri vhode, zmanjša ali odstrani naložbo,
+            doda prihodke v gotovino in zabeleži prodajno transakcijo.
+            Sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/> prek <see cref="M:FinancialPortfolioManager.Portfolio.RemoveInvestment(FinancialPortfolioManager.Investment)"/>,
+            <see cref="M:FinancialPortfolioManager.Portfolio.Deposit(System.Decimal)"/> in <see cref="M:FinancialPortfolioManager.Portfolio.AddTransaction(FinancialPortfolioManager.Transaction,System.Boolean)"/>.
+            </summary>
+            <param name="sender">Vir dogodka (gumb Prodaj).</param>
+            <param name="e">Podatki o kliku.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.transactionsListBox_SelectedIndexChanged(System.Object,System.EventArgs)">
+            <summary>
+            Odzivnik na spremembo izbire v seznamu transakcij. Rezervirano.
+            </summary>
+            <param name="sender">Vir dogodka.</param>
+            <param name="e">Podatki o dogodku.</param>
+        </member>
+        <member name="F:FinancialPortfolioManager.Form1.components">
+            <summary>
+             Required designer variable.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.Dispose(System.Boolean)">
+            <summary>
+             Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Form1.InitializeComponent">
+            <summary>
+             Required method for Designer support - do not modify
+             the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:FinancialPortfolioManager.IDividendPaying">
+            <summary>
+            Vmesnik za naložbe, ki izplačujejo dividende.
+            </summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.IDividendPaying.DividendYield">
+            <summary>
+            Letni dividendni donos, izražen kot decimalni delež (npr. 0,03 za 3 %).
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.IDividendPaying.GetAnnualDividendIncome">
+            <summary>
+            Izračuna letni prihodek od dividend za to naložbo.
+            </summary>
+            <returns>Letni prihodek od dividend kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="T:FinancialPortfolioManager.Investment">
+            <summary>
+            Abstraktni osnovni razred za vse vrste naložb v portfelju.
+            Implementira vmesnik <see cref="T:FinancialPortfolioManager.IValuable"/>.
+            </summary>
+        </member>
+        <member name="F:FinancialPortfolioManager.Investment.MIN_INVESTMENT_AMOUNT">
+            <summary>Najmanjša dovoljena količina naložbe.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Investment.Name">
+            <summary>Polno ime naložbe.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Investment.Amount">
+            <summary>
+            Količina enot naložbe v lasti. Mora biti vsaj <see cref="F:FinancialPortfolioManager.Investment.MIN_INVESTMENT_AMOUNT"/>.
+            </summary>
+            <exception cref="T:System.ArgumentException">Če je vrednost manjša od <see cref="F:FinancialPortfolioManager.Investment.MIN_INVESTMENT_AMOUNT"/>.</exception>
+        </member>
+        <member name="P:FinancialPortfolioManager.Investment.BuyPrice">
+            <summary>Povprečna nakupna cena na enoto.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Investment.Ticker">
+            <summary>Borznointervalni simbol naložbe (npr. "AAPL", "BTC").</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Investment.CurrentPrice">
+            <summary>Trenutna tržna cena naložbe na enoto.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Investment.Type">
+            <summary>Vrsta naložbe (Stock, Crypto). Implementirajo izvedeni razredi.</summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Investment.#ctor(System.String,System.Decimal,System.Decimal)">
+            <summary>
+            Ustvari osnovno naložbo.
+            </summary>
+            <param name="name">Polno ime naložbe.</param>
+            <param name="amount">Začetna količina enot.</param>
+            <param name="buyPrice">Nakupna cena na enoto; nastavi se tudi kot začetna trenutna cena.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Investment.GetValue">
+            <summary>
+            Vrne trenutno tržno vrednost naložbe.
+            </summary>
+            <returns>Vrednost naložbe kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Investment.GetRiskScore">
+            <summary>
+            Vrne oceno tveganja naložbe na lestvici od 0 (nizko) do 1 (visoko).
+            </summary>
+            <returns>Ocena tveganja kot <see cref="T:System.Decimal"/> med 0 in 1.</returns>
+        </member>
+        <member name="P:FinancialPortfolioManager.Investment.Summary">
+            <summary>
+            Kratki povzetek naložbe v obliki "{Ticker} - {Name}: {Amount} @ {BuyPrice:N2} ({Type})".
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Investment.GetProfitLoss">
+            <summary>
+            Izračuna realiziran dobiček ali izgubo glede na nakupno ceno.
+            </summary>
+            <returns>Dobiček ali izguba kot <see cref="T:System.Decimal"/> (pozitivna = dobiček, negativna = izguba).</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Investment.GetDetails">
+            <summary>
+            Vrne podrobnosti naložbe. Privzeto vrne <see cref="P:FinancialPortfolioManager.Investment.Summary"/>.
+            </summary>
+            <returns>Niz z opisi naložbe.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Investment.op_Addition(FinancialPortfolioManager.Investment,FinancialPortfolioManager.Investment)">
+            <summary>
+            Združi dve naložbi istega tipa in simbola v eno. Izračuna tehtano povprečno nakupno ceno.
+            </summary>
+            <param name="a">Prva naložba.</param>
+            <param name="b">Druga naložba.</param>
+            <returns>Nova naložba z združeno količino in tehtano povprečno nakupno ceno.</returns>
+            <exception cref="T:System.ArgumentNullException">Če je ena od naložb <c>null</c>.</exception>
+            <exception cref="T:System.InvalidOperationException">Če naložbi nista istega tipa ali simbola.</exception>
+        </member>
+        <member name="M:FinancialPortfolioManager.Investment.Finalize">
+            <summary>
+            Destruktor — ob uničenju izpiše diagnostično sporočilo za razhroščevanje.
+            </summary>
+        </member>
+        <member name="T:FinancialPortfolioManager.InvestmentType">
+            <summary>
+            Definira vrsto naložbe, ki jo portfelj podpira.
+            </summary>
+        </member>
+        <member name="F:FinancialPortfolioManager.InvestmentType.Stock">
+            <summary>Delniška naložba ali ETF.</summary>
+        </member>
+        <member name="F:FinancialPortfolioManager.InvestmentType.Crypto">
+            <summary>Kriptovalutna naložba.</summary>
+        </member>
+        <member name="F:FinancialPortfolioManager.InvestmentType.Cash">
+            <summary>Gotovina v portfelju.</summary>
+        </member>
+        <member name="T:FinancialPortfolioManager.IStakeable">
+            <summary>
+            Vmesnik za naložbe, ki ponujajo nagrade za stakanje.
+            </summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.IStakeable.StakingYield">
+            <summary>
+            Letni donos stakanja, izražen kot decimalni delež (npr. 0,06 za 6 %).
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.IStakeable.GetAnnualStakingRewards">
+            <summary>
+            Izračuna letne nagrade za stakanje za to naložbo.
+            </summary>
+            <returns>Letne nagrade za stakanje kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="T:FinancialPortfolioManager.IValuable">
+            <summary>
+            Vmesnik za objekte, ki imajo izmerljivo vrednost.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.IValuable.GetValue">
+            <summary>
+            Vrne trenutno vrednost naložbe.
+            </summary>
+            <returns>Trenutna tržna vrednost kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="P:FinancialPortfolioManager.IValuable.Summary">
+            <summary>
+            Kratki povzetek naložbe (simbol, ime, količina, cena nakupa, vrsta).
+            </summary>
+        </member>
+        <member name="T:FinancialPortfolioManager.Portfolio">
+            <summary>
+            Upravljalec finančnega portfelja. Hrani naložbe, transakcije in stanje gotovine.
+            Ob vsaki spremembi sproži dogodek <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+        </member>
+        <member name="T:FinancialPortfolioManager.Portfolio.PortfolioChangedHandler">
+            <summary>
+            Delegat za obravnavo dogodka <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+            <param name="sender">Vir dogodka (portfelj).</param>
+            <param name="e">Podatki o spremembi portfelja.</param>
+        </member>
+        <member name="E:FinancialPortfolioManager.Portfolio.PortfolioChanged">
+            <summary>
+            Dogodek, ki se sproži ob vsaki spremembi portfelja (nakup, prodaja, polog, dvig, dodajanje ali odstranjevanje naložbe).
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.OnPortfolioChanged(System.String,System.Object)">
+            <summary>
+            Sproži dogodek <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/> z navedenim dejanjem in prizadetim objektom.
+            </summary>
+            <param name="action">Opis dejanja (npr. "AddInvestment", "Deposit").</param>
+            <param name="affectedObject">Objekt, ki ga je sprememba prizadela.</param>
+        </member>
+        <member name="F:FinancialPortfolioManager.Portfolio.currency">
+            <summary>Trenutna valuta portfelja ("EUR" ali "USD").</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Portfolio.CashBalance">
+            <summary>Stanje gotovine v portfelju. Privzeto je 1000 EUR ob ustvaritvi.</summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.GetTransactions">
+            <summary>
+            Vrne seznam vseh transakcij kot samo za branje.
+            </summary>
+            <returns>Samo za branje seznam <see cref="T:FinancialPortfolioManager.Transaction"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.Deposit(System.Decimal)">
+            <summary>
+            Doda znesek gotovine v portfelj in sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+            <param name="amount">Znesek pologa. Vrednosti ≤ 0 so prezrte.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.Withdraw(System.Decimal)">
+            <summary>
+            Dvigne znesek gotovine iz portfelja, če je stanje zadostno. Sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+            <param name="amount">Znesek dviga.</param>
+            <returns><c>true</c> če je dvig uspel; <c>false</c> če sredstev ni dovolj ali je znesek neveljaven.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.AddInvestment(FinancialPortfolioManager.Investment)">
+            <summary>
+            Doda naložbo v portfelj. Če naložba z istim simbolom in tipom že obstaja, se količini združita
+            z izračunom tehtane povprečne nakupne cene. V tem primeru <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/> ni sprožen.
+            </summary>
+            <param name="investment">Naložba za dodajanje.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.GetInvestments">
+            <summary>
+            Vrne seznam vseh naložb kot samo za branje.
+            </summary>
+            <returns>Samo za branje seznam <see cref="T:FinancialPortfolioManager.Investment"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.GetTotalValue">
+            <summary>
+            Izračuna skupno vrednost portfelja (gotovina + vse naložbe).
+            </summary>
+            <returns>Skupna vrednost portfelja kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.GetTotalProfitLoss">
+            <summary>
+            Izračuna skupen dobiček ali izgubo za vse naložbe v portfelju.
+            </summary>
+            <returns>Skupni dobiček/izguba kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.ChangeCurrency">
+            <summary>
+            Preklopi valuto portfelja med EUR in USD.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.GetValueByType(FinancialPortfolioManager.InvestmentType)">
+            <summary>
+            Vrne skupno vrednost naložb določenega tipa (za gotovino vrne <see cref="P:FinancialPortfolioManager.Portfolio.CashBalance"/>).
+            </summary>
+            <param name="type">Vrsta naložbe za izračun vrednosti.</param>
+            <returns>Vrednost naložb danega tipa kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.GetPercentageByType(FinancialPortfolioManager.InvestmentType)">
+            <summary>
+            Vrne odstotek skupne vrednosti portfelja za naložbe določenega tipa.
+            </summary>
+            <param name="type">Vrsta naložbe.</param>
+            <returns>Odstotek kot <see cref="T:System.Decimal"/> (0–100). Vrne 0, če je skupna vrednost 0.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.RemoveInvestment(FinancialPortfolioManager.Investment)">
+            <summary>
+            Odstrani naložbo iz portfelja in sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+            <param name="investment">Naložba za odstranitev.</param>
+        </member>
+        <member name="P:FinancialPortfolioManager.Portfolio.Item(System.Int32)">
+            <summary>
+            Dostop do naložbe po indeksu.
+            </summary>
+            <param name="index">Indeks naložbe v notranjem seznamu.</param>
+            <returns>Naložba na danem indeksu.</returns>
+        </member>
+        <member name="P:FinancialPortfolioManager.Portfolio.Item(System.String)">
+            <summary>
+            Dostop do naložbe po simbolu (primerjava ni občutljiva na velikost črk).
+            </summary>
+            <param name="ticker">Simbol naložbe za iskanje.</param>
+            <returns>Naložba s tem simbolom ali <c>null</c>, če ni najdena.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.AddTransaction(FinancialPortfolioManager.Transaction,System.Boolean)">
+            <summary>
+            Doda transakcijo v zgodovino in nastavi njeno zastavico nakupa/prodaje. Sproži <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+            <param name="transaction">Transakcija za dodajanje.</param>
+            <param name="isBuy"><c>true</c> za nakup, <c>false</c> za prodajo.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.Portfolio.op_Addition(FinancialPortfolioManager.Portfolio,FinancialPortfolioManager.Portfolio)">
+            <summary>
+            Združi dva portfelja v novega. Gotovina in naložbe obeh se seštejejo.
+            </summary>
+            <param name="a">Prvi portfelj.</param>
+            <param name="b">Drugi portfelj.</param>
+            <returns>Nov <see cref="T:FinancialPortfolioManager.Portfolio"/> z združeno gotovino in naložbami obeh portfeljev.</returns>
+        </member>
+        <member name="T:FinancialPortfolioManager.PortfolioChangedEventArgs">
+            <summary>
+            Vsebuje podatke o spremembi portfelja, ki jih prenaša dogodek <see cref="E:FinancialPortfolioManager.Portfolio.PortfolioChanged"/>.
+            </summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.PortfolioChangedEventArgs.Action">
+            <summary>
+            Vrsta dejanja, ki je sprožilo spremembo (npr. "AddInvestment", "Deposit", "Withdraw").
+            </summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.PortfolioChangedEventArgs.AffectedObject">
+            <summary>
+            Objekt, na katerega se nanaša sprememba (naložba, transakcija ali znesek).
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.PortfolioChangedEventArgs.#ctor(System.String,System.Object)">
+            <summary>
+            Ustvari nov primerek <see cref="T:FinancialPortfolioManager.PortfolioChangedEventArgs"/>.
+            </summary>
+            <param name="action">Vrsta dejanja, ki je povzročilo spremembo.</param>
+            <param name="affectedObject">Objekt, ki ga je sprememba prizadela.</param>
+        </member>
+        <member name="T:FinancialPortfolioManager.Library.PortfolioLibrary">
+            <summary>
+            Pomožna statična knjižnica z metodami za izračune portfelja.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Library.PortfolioLibrary.CalculateTotalValue(System.Collections.Generic.IEnumerable{FinancialPortfolioManager.IValuable})">
+            <summary>
+            Sešteje vrednosti vseh objektov, ki implementirajo <see cref="T:FinancialPortfolioManager.IValuable"/>.
+            </summary>
+            <param name="valuables">Zbirka naložb za izračun skupne vrednosti. Če je <c>null</c>, vrne 0.</param>
+            <returns>Skupna vrednost vseh naložb kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.Program.Main">
+            <summary>
+             The main entry point for the application.
+            </summary>
+        </member>
+        <member name="T:FinancialPortfolioManager.StockInvestment">
+            <summary>
+            Predstavlja delniško naložbo ali ETF. Implementira <see cref="T:FinancialPortfolioManager.IDividendPaying"/>.
+            </summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.StockInvestment.Type">
+            <summary>Vrsta naložbe — vedno <see cref="F:FinancialPortfolioManager.InvestmentType.Stock"/>.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.StockInvestment.DividendYield">
+            <summary>Letni dividendni donos kot decimalni delež (npr. 0,03 za 3 %).</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.StockInvestment.Exchange">
+            <summary>Borza, na kateri je delnica kotirana (npr. "NYSE", "NASDAQ").</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.StockInvestment.Sector">
+            <summary>Gospodarski sektor naložbe (npr. "Technology", "Healthcare").</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.StockInvestment.IsEtf">
+            <summary>Označuje, ali gre za ETF (<c>true</c>) ali navadno delnico (<c>false</c>).</summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.StockInvestment.#ctor(System.String,System.String,System.Decimal,System.Decimal)">
+            <summary>
+            Ustvari novo delniško naložbo.
+            </summary>
+            <param name="ticker">Borznointervalni simbol (npr. "AAPL").</param>
+            <param name="name">Polno ime podjetja ali ETF.</param>
+            <param name="amount">Število delnic v lasti.</param>
+            <param name="buyPrice">Nakupna cena na delnico.</param>
+        </member>
+        <member name="M:FinancialPortfolioManager.StockInvestment.GetValue">
+            <summary>
+            Vrne trenutno tržno vrednost delniške naložbe (trenutna cena × količina).
+            </summary>
+            <returns>Tržna vrednost kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.StockInvestment.GetAnnualDividendIncome">
+            <summary>
+            Izračuna letni prihodek od dividend na podlagi trenutne vrednosti naložbe.
+            </summary>
+            <returns>Letni dividendni prihodek kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.StockInvestment.GetTotalReturn">
+            <summary>
+            Izračuna skupni donos naložbe (kapitalski dobiček + letne dividende).
+            </summary>
+            <returns>Skupni donos kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.StockInvestment.GetRiskScore">
+            <summary>
+            Vrne oceno tveganja: 0,4 za ETF, 0,5 za navadne delnice (razpon 0–1).
+            </summary>
+            <returns>Ocena tveganja kot <see cref="T:System.Decimal"/> med 0 in 1.</returns>
+        </member>
+        <member name="M:FinancialPortfolioManager.StockInvestment.GetDetails">
+            <summary>
+            Vrne podrobnosti delniške naložbe: simbol, ime, borza, sektor in dividendni donos.
+            </summary>
+            <returns>Niz s podrobnostmi naložbe.</returns>
+        </member>
+        <member name="T:FinancialPortfolioManager.Transaction">
+            <summary>
+            Predstavlja posamezno nakupno ali prodajno transakcijo naložbe.
+            </summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.Date">
+            <summary>Datum in čas izvedbe transakcije.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.Ticker">
+            <summary>Borznointervalni simbol naložbe (npr. "AAPL", "BTC").</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.Name">
+            <summary>Polno ime naložbe.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.Amount">
+            <summary>Količina enot v transakciji.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.Price">
+            <summary>Cena na enoto ob izvedbi transakcije.</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.Type">
+            <summary>Vrsta naložbe (Stock, Crypto).</summary>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.IsBuy">
+            <summary>
+            Označuje, ali gre za nakup (<c>true</c>) ali prodajo (<c>false</c>).
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.Transaction.#ctor(System.String,System.String,System.Decimal,System.Decimal,FinancialPortfolioManager.InvestmentType)">
+            <summary>
+            Ustvari novo transakcijo. Datum se samodejno nastavi na trenutni čas.
+            </summary>
+            <param name="ticker">Borznointervalni simbol naložbe.</param>
+            <param name="name">Polno ime naložbe.</param>
+            <param name="amount">Količina enot.</param>
+            <param name="price">Cena na enoto.</param>
+            <param name="type">Vrsta naložbe.</param>
+        </member>
+        <member name="P:FinancialPortfolioManager.Transaction.TotalValue">
+            <summary>
+            Skupna vrednost transakcije (količina × cena).
+            </summary>
+            <returns>Skupna vrednost kot <see cref="T:System.Decimal"/>.</returns>
+        </member>
+        <member name="T:FinancialPortfolioManager.ApplicationConfiguration">
+            <summary>
+             Bootstrap the application configuration.
+            </summary>
+        </member>
+        <member name="M:FinancialPortfolioManager.ApplicationConfiguration.Initialize">
+            <summary>
+             Bootstrap the application as follows:
+             <code>
+             global::System.Windows.Forms.Application.EnableVisualStyles();
+             global::System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+             global::System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            </code>
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -4,8 +4,13 @@ using System.Collections.Generic;
 
 namespace FinancialPortfolioManager
 {
+    /// <summary>
+    /// Glavno okno aplikacije. Prikazuje portfelj, omogoča nakup/prodajo naložb,
+    /// polog/dvig gotovine in upravljanje metapodatkov naložb.
+    /// </summary>
     public partial class Form1 : Form
     {
+        /// <summary>Glavni portfelj uporabnika.</summary>
         public Portfolio portfolio1 = new Portfolio();
 
         private readonly Dictionary<string, StockMetadata> stockMetadata =
@@ -29,6 +34,9 @@ namespace FinancialPortfolioManager
             public decimal StakingYield { get; set; }
         }
 
+        /// <summary>
+        /// Inicializira glavno okno, zažene časovnik in se naroči na dogodek <see cref="Portfolio.PortfolioChanged"/>.
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
@@ -36,28 +44,56 @@ namespace FinancialPortfolioManager
 
             portfolio1.PortfolioChanged += Portfolio1_PortfolioChanged;
         }
-        
+
+        /// <summary>
+        /// Odzivnik na dogodek <see cref="Portfolio.PortfolioChanged"/>.
+        /// Prikaže sporočilno okno z opisom dejanja in prizadetim objektom.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (portfelj).</param>
+        /// <param name="e">Podatki o spremembi portfelja.</param>
         private void Portfolio1_PortfolioChanged(object sender, PortfolioChangedEventArgs e)
         {
             MessageBox.Show($"Portfolio action: {e.Action}\nObject: {e.AffectedObject}", "Portfolio Changed");
         }
 
+        /// <summary>
+        /// Odzivnik na nalaganje obrazca. Rezervirano za inicializacijo.
+        /// </summary>
+        /// <param name="sender">Vir dogodka.</param>
+        /// <param name="e">Podatki o dogodku.</param>
         private void Form1_Load(object sender, EventArgs e)
         {
 
         }
 
+        /// <summary>
+        /// Odzivnik na klik oznake za prikaz delnic. Rezervirano.
+        /// </summary>
+        /// <param name="sender">Vir dogodka.</param>
+        /// <param name="e">Podatki o dogodku.</param>
         private void StockDisplayLabel_Click(object sender, EventArgs e)
         {
 
         }
 
+        /// <summary>
+        /// Preklopi valuto portfelja med EUR in USD in posodobi prikaz vrednosti.
+        /// Sproži <see cref="Portfolio.ChangeCurrency"/>.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (gumb).</param>
+        /// <param name="e">Podatki o kliku.</param>
         private void button5_Click(object sender, EventArgs e)
         {
             Portfolio.ChangeCurrency();
             portfolioValueLabel.Text = portfolio1.GetTotalValue().ToString("N2") + " " + Portfolio.currency;
         }
 
+        /// <summary>
+        /// Obdela nakup naložbe. Preveri vhode, dvigne gotovino, ustvari naložbo in transakcijo ter posodobi prikaz.
+        /// Sproži <see cref="Portfolio.PortfolioChanged"/> prek <see cref="Portfolio.AddInvestment"/> in <see cref="Portfolio.AddTransaction"/>.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (gumb Kupi).</param>
+        /// <param name="e">Podatki o kliku.</param>
         private void button1_Click(object sender, EventArgs e)
         {
             if (comboBox1.SelectedItem == null)
@@ -161,7 +197,11 @@ namespace FinancialPortfolioManager
             UpdateTransactionsList();
         }
 
-
+        /// <summary>
+        /// Odzivnik na tick časovnika. Posodobi prikaz vrednosti portfelja in porazdelitev naložb.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (časovnik).</param>
+        /// <param name="e">Podatki o dogodku.</param>
         private void timer1_Tick(object sender, EventArgs e)
         {
             portfolioValueLabel.Text =
@@ -171,10 +211,19 @@ namespace FinancialPortfolioManager
             UpdateInvestmentsList();
         }
 
+        /// <summary>
+        /// Odzivnik na klik oznake. Rezervirano.
+        /// </summary>
+        /// <param name="sender">Vir dogodka.</param>
+        /// <param name="e">Podatki o dogodku.</param>
         private void label8_Click(object sender, EventArgs e)
         {
 
         }
+
+        /// <summary>
+        /// Osveži seznam naložb v <c>investmentsListBox</c>: prikaže stanje gotovine in vse naložbe.
+        /// </summary>
         private void UpdateInvestmentsList()
         {
             investmentsListBox.Items.Clear();
@@ -193,6 +242,9 @@ namespace FinancialPortfolioManager
             }
         }
 
+        /// <summary>
+        /// Osveži seznam transakcij v <c>transactionsListBox</c> z vsemi nakupi in prodajami.
+        /// </summary>
         private void UpdateTransactionsList()
         {
             transactionsListBox.Items.Clear();
@@ -206,12 +258,25 @@ namespace FinancialPortfolioManager
             }
         }
 
+        /// <summary>
+        /// Polog gotovine v portfelj na podlagi vrednosti v <c>numericUpDownAmount1</c>.
+        /// Sproži <see cref="Portfolio.PortfolioChanged"/> prek <see cref="Portfolio.Deposit"/>.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (gumb Polog).</param>
+        /// <param name="e">Podatki o kliku.</param>
         private void depositButton_Click(object sender, EventArgs e)
         {
             portfolio1.Deposit(numericUpDownAmount1.Value);
             UpdateInvestmentsList();
         }
 
+        /// <summary>
+        /// Dvig gotovine iz portfelja na podlagi vrednosti v <c>numericUpDownAmount1</c>.
+        /// Sproži <see cref="Portfolio.PortfolioChanged"/> prek <see cref="Portfolio.Withdraw"/>.
+        /// Prikaže opozorilo, če sredstev ni dovolj.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (gumb Dvig).</param>
+        /// <param name="e">Podatki o kliku.</param>
         private void withdrawButton_Click(object sender, EventArgs e)
         {
             if (!portfolio1.Withdraw(numericUpDownAmount1.Value))
@@ -220,6 +285,9 @@ namespace FinancialPortfolioManager
             UpdateInvestmentsList();
         }
 
+        /// <summary>
+        /// Posodobi oznake za porazdelitev portfelja (delnice %, kripto %, gotovina %).
+        /// </summary>
         private void UpdateAllocationDisplay()
         {
             label1.Text =
@@ -232,29 +300,54 @@ namespace FinancialPortfolioManager
                 $"{portfolio1.GetPercentageByType(InvestmentType.Cash):N1}%";
         }
 
+        /// <summary>
+        /// Preklopi med temnim in svetlim načinom prikaza.
+        /// V temnem načinu nastavi ozadje na črno in besedilo na belo; v svetlem obnovi sistemske barve.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (gumb Dark Mode).</param>
+        /// <param name="e">Podatki o kliku.</param>
         private void button6_Click(object sender, EventArgs e)
         {
             if (this.BackColor == Color.Black)
             {
-                this.BackColor = Color.White;
-                groupBox1.BackColor = Color.White;
-                groupBox2.BackColor = Color.White;
-                groupBox3.BackColor = Color.White;
+                this.BackColor = SystemColors.Control;
+                this.ForeColor = SystemColors.ControlText;
+                groupBox1.BackColor = SystemColors.Control;
+                groupBox1.ForeColor = SystemColors.ControlText;
+                groupBox2.BackColor = SystemColors.Control;
+                groupBox2.ForeColor = SystemColors.ControlText;
+                groupBox3.BackColor = SystemColors.Control;
+                groupBox3.ForeColor = SystemColors.ControlText;
             }
             else
             {
                 this.BackColor = Color.Black;
-                groupBox1.ForeColor = Color.Black;
-                groupBox2.ForeColor = Color.Black;
-                groupBox3.ForeColor = Color.Black;
+                this.ForeColor = Color.White;
+                groupBox1.BackColor = Color.Black;
+                groupBox1.ForeColor = Color.White;
+                groupBox2.BackColor = Color.Black;
+                groupBox2.ForeColor = Color.White;
+                groupBox3.BackColor = Color.Black;
+                groupBox3.ForeColor = Color.White;
             }
         }
 
+        /// <summary>
+        /// Odzivnik na odhod iz polja za simbol. Metapodatki se urejajo prek dialoga Details.
+        /// </summary>
+        /// <param name="sender">Vir dogodka.</param>
+        /// <param name="e">Podatki o dogodku.</param>
         private void tickerTextBox_Leave(object sender, EventArgs e)
         {
             // Metadata is now edited via the Details dialog, so this handler is left empty.
         }
 
+        /// <summary>
+        /// Odpre dialog za urejanje metapodatkov delnice (<see cref="StockDetailsForm"/>) ali kriptovalute (<see cref="CryptoDetailsForm"/>)
+        /// glede na izbrani tip naložbe in vneseni simbol.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (gumb Details).</param>
+        /// <param name="e">Podatki o kliku.</param>
         private void detailsButton_Click(object sender, EventArgs e)
         {
             if (comboBox1.SelectedItem == null)
@@ -316,6 +409,14 @@ namespace FinancialPortfolioManager
             }
         }
 
+        /// <summary>
+        /// Obdela prodajo naložbe. Preveri vhode, zmanjša ali odstrani naložbo,
+        /// doda prihodke v gotovino in zabeleži prodajno transakcijo.
+        /// Sproži <see cref="Portfolio.PortfolioChanged"/> prek <see cref="Portfolio.RemoveInvestment"/>,
+        /// <see cref="Portfolio.Deposit"/> in <see cref="Portfolio.AddTransaction"/>.
+        /// </summary>
+        /// <param name="sender">Vir dogodka (gumb Prodaj).</param>
+        /// <param name="e">Podatki o kliku.</param>
         private void button2_Click(object sender, EventArgs e)
         {
             if (comboBox1.SelectedItem == null)
@@ -386,6 +487,11 @@ namespace FinancialPortfolioManager
             UpdateTransactionsList();
         }
 
+        /// <summary>
+        /// Odzivnik na spremembo izbire v seznamu transakcij. Rezervirano.
+        /// </summary>
+        /// <param name="sender">Vir dogodka.</param>
+        /// <param name="e">Podatki o dogodku.</param>
         private void transactionsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
 
